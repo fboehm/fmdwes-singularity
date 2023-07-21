@@ -1,0 +1,18 @@
+Bootstrap: docker
+From: rocker/r-ver:3.6.1
+
+
+%post
+    apt-get -y update && apt-get install -y python3
+    apt-get install -y gengetopt help2man groff pod2pdf bison flex libhpdf-dev libtool
+    git clone 
+    git clone --branch master --tag v3.3.2 https://github.com/statgen/EPACTS.git
+    cd EPACTS
+    ./configure --prefix ./
+    make
+    make install
+    apt-get update
+
+%runscript
+    EPACTS/bin/epacts --version
+    
