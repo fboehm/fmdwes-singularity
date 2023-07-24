@@ -3,16 +3,40 @@ From: rocker/r-ver:3.6.1
 
 
 %post
-    apt-get -y update && apt-get install -y python3
-    apt-get install -y gengetopt help2man groff pod2pdf bison flex libhpdf-dev libtool
-    git clone 
-    git clone --branch master --tag v3.3.2 https://github.com/statgen/EPACTS.git
+     # make print colour #
+    GREEN='\033[0;32m'
+    NOCOLOUR='\033[0m'
+
+    # give all files 774 and directories 775 by default
+    umask 002
+
+    # start
+    echo "${GREEN}~~~ install apt packages ~~~ ${NOCOLOUR}"
+    cat /etc/apt/sources.list
+    # Update /etc/apt/sources.list to use Ubuntu Bionic (18.04) releases
+    echo "deb http://archive.ubuntu.com/ubuntu/ bionic main restricted universe multiverse" > /etc/apt/sources.list
+    echo "deb http://archive.ubuntu.com/ubuntu/ bionic-updates main restricted universe multiverse" >> /etc/apt/sources.list
+    echo "deb http://archive.ubuntu.com/ubuntu/ bionic-backports main restricted universe multiverse" >> /etc/apt/sources.list
+    echo "deb http://security.ubuntu.com/ubuntu/ bionic-security main restricted universe multiverse" >> /etc/apt/sources.list    cat /etc/apt/sources.list
+    # install everything at once and use apt-get for non-interactive installs
+    # FOR GCC-5 see https://groups.google.com/g/epacts/c/NtYdd2av11A
+    apt-get update -y --allow-unauthenticated && apt-get install -y --allow-unauthenticated gcc-5 g++-5 gawk git libboost-all-dev autotools-dev automake gnuplot groff ghostscript zlib1g-dev make libc-bin libc-dev-bin libc6 libc6-dev locales make perl-base
+    echo "${GREEN}~~~ Getting modified packages from github ~~~ ${NOCOLOUR}"
+    git clone https://github.com/statgen/EPACTS.git
+    echo "${GREEN}~~~ Making the packages ~~~ ${NOCOLOUR}"
+
     cd EPACTS
-    ./configure --prefix ./
-    make
-    make install
-    apt-get update
+    git checkout tags/v3.3.2 -b v3.3.2
+    # https://groups.google.com/g/epacts/c/WlvQ8GBFKGI
+    autoreconf -vfi
+    CC="gcc-5" CXX="g++-5" ./configure --prefix=/usr/local
+    make -j 1
+    make -j 1 install
+    cd ..
 
 %runscript
-    EPACTS/bin/epacts --version
+    /usr/local/bin/epacts --version
+    R --version
+
+
     
