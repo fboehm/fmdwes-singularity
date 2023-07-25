@@ -36,16 +36,25 @@ From: rocker/r-ver:3.6.1
     CC="gcc-5" CXX="g++-5" ./configure --prefix=/usr/local
     make -j 1
     make -j 1 install
-    cd ..
+    pwd
+    mkdir -p /dat
+    echo "${GREEN}~~~ Done ~~~ ${NOCOLOUR}"
 
 %runscript
+    echo "$(ls)"
     /usr/local/bin/epacts help
     R --version
-    /usr/local/bin/epacts group --vcf my.vcf \
-                --groupf my.group \
+    if [[ "${sample_size}" == "523" ]]; then
+        pf_name="adult_matchPC_with_FMDPRS.ped"
+    else 
+        pf_name="adult_matchPC.ped"
+    fi
+    echo "pf_name is ${pf_name}"
+    /usr/local/bin/epacts group --vcf /dat/vcf_file/Adult_afterQC_matchPC_rmLongIndel.vcf.gz \
+                --groupf /dat/group_file/group.file \
                 --out out \
                 --test ${test} \
-                --ped my.ped \
+                --ped /dat/ped_file/${pf_name} \
                 --max-maf ${maf} \
                 --pheno disease \
                 $COVAR_FLAG \
